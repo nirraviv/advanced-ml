@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb,amsfonts,amsmath,amsthm,amscd,dsfont,mathrsfs,bbold}
+\usepackage{blkarray}
+\usepackage{graphicx,float,psfrag,epsfig,color}
+\usepackage{microtype}
+\usepackage[pdftex,pagebackref=true,colorlinks]{hyperref}
+\usepackage{tikz}
+\usepackage{natbib}
+\renewcommand\bibsection{\section{\refname}}
+\usepackage{listings}
+
+\usepackage{bm}
+\usetikzlibrary{positioning}
+\tikzset{main node/.style={circle,fill=white!20,draw,minimum size=1cm,inner sep=0pt},}
+\hypersetup{linkcolor=[rgb]{.7,0,0}}
+\hypersetup{citecolor=[rgb]{0,.7,0}}
+\hypersetup{urlcolor=[rgb]{.7,0,.7}}
+
+\newcommand{\remove}[1]{}
+\setlength{\topmargin}{0.2in} \setlength{\headheight}{0in}
+\setlength{\headsep}{0in} \setlength{\textheight}{8.7in}
+\setlength{\topsep}{0in} \setlength{\itemsep}{0in}
+\parskip=0.060in
+
+\textwidth=6.6in \oddsidemargin=0truecm \evensidemargin=0truecm
+
+
+
+\hbadness=10000 \vbadness=10000
+
+\setlength{\oddsidemargin}{.25in}
+\setlength{\evensidemargin}{.25in} \setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.4in} \setlength{\textheight}{8.5in}
+
+\newcommand{\details}[8]{
+	\renewcommand{\thepage}{#1-\arabic{page}}
+	\noindent
+	\begin{center}
+		\framebox{
+			\vbox{
+				\hbox to 5.78in { {\bf  Advanced Methods in Machine Learning}\hfill #2}
+				\vspace{4mm}
+				\hbox to 5.78in { {\bf \Large \hfill Singing Voice Generation  \hfill} }
+				\vspace{2mm}
+				\hbox to 5.78in { {{\it #3} \hfil {\it #4} \hfil {\it #5}} }
+				\vspace{2mm}
+				\hbox to 5.78in { {{\it #6} \hfil {\it #7} \hfil {\it #8}} }
+			}
+		}
+	\end{center}
+	\vspace*{4mm}
+}
+
+\newcommand{\lecture}[8]{\details{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\graphicspath{{1c/},{1e/},{1d/}}
+
+
+
+\begin{document}
+	\lecture{1}{07.06.2018}{Nir Raviv 200683548}{Roi Tabach 203022983}{Andrey Leshenko 322026527}{nirraviv@mail.tau.ac.il}{roi.tabach@gmail.com}{andrey.leshenko@gmail.com}
+	
+\section{Introduction}
+The goal of our project is to generate singing voices that sound as close to human as possible.
+The inputs to the system will be text and music notes presented in MIDI format, a protocol contains information such as timbre, timing and pitch, while the output will be a singing voice of the text that fits the melody presented in the notes.
+
+Compared to regular text-to-speech (TTS), this problem is much more complex.
+While a TTS system only needs to generate one speech file for an input text sentence,
+a singing system needs to be able to sing this sentence in a way that can fit each given melody in the correct timing, pitch and timbre as asked.
+This requires the system to strongly generalize the concept of singing.
+It may be asked to sing the words of one song with the melody of a different song,
+and it needs to generate the convincing result.
+
+This method could help music composers and producers to be more creative by testing multiple compositions in relatively short time.
+
+\section{Related Works}
+During the recent years many neural networks architecture based on fully-visible probabilistic autoregressive generative models are applied in many fields, such as natural images (PixelCNN) \cite{van2016conditional}, raw audio waveform (WaveNet) \cite{van2016wavenet} and video (Video Pixel Networks) \cite{kalchbrenner2016video}. These methods predict the distribution for each sample conditioned on all previous ones while remain efficiently trained.
+
+Since WaveNet was published in 2016, there has been several major attempts at the problem of synthesizing speech with neural networks, including Deep Voice 1 \cite{arik2017deep}, 2 \cite{arik2017deep2}, and 3 \cite{ping2018deep}, Tacotron \cite{wang2017tacotron}, Char2Wav \cite{sotelo2017char2wav}, and others. Deep Voice 1 and 2 are built as TTS pipelines, separating grapheme-to-phoneme conversion, duration and frequency prediction, and waveform synthesis. Deep Voice 3, Tacotron and Char2Wav propose sequence-to-sequence models for neural TTS. Tacotron is a neural text-to-spectrogram conversion model, which uses Griffin-Lim \cite{griffin1984signal} for spectogram-to-waveform synthesis. Char2Wav predicts the parameters of the WORLD vocoder \cite{morise2016world} and uses a SampleRNN \cite{mehri2016samplernn} conditioned upon WORLD parameters for waveform generation.
+These works achieve state of the art performance, with human listeners rating as more natural sounding than the previous state of the art methods of concatenative methods.
+
+Different singing generators are based on statistical parametric methods centered around Hidden Markov Models (HMM) which allow joint modeling of timbre and musical expression but perform less than the previous methods by causing “buzzy” sound \cite{oura2012pitch}.
+This work was extended to feedforward DNNs \cite{nishimura2016singing}.
+
+Merlijin {\em et al.} \cite{blaauw2017neural} presented synthesizer which can generate synthetic singing voice given musical score and phonetic lyrics. They are using different models to learn phonetic timing, pitch and timbre combining autoregressive generative model with mixture density output, instead of softmax, which allows skewness or truncated distribution and multiple modes.
+
+\section{Proposed Method}
+
+The system will be made of two main parts: A TTS part,
+and a singing generator which will be able to control
+the pitch, rythm and timbre of the speech such that it will sound as singing.
+
+Our main difference will be generating the singing directly from text, rather than from a phoneme sequence.
+In addition, we will train the system on one language and generate the singing in a different languages, which might produce interesting results and more generalize model.
+Many parts of our system will likely be based of the current state of the art methods such as \cite{blaauw2017neural} and \cite{wang2017tacotron}
+
+\section{Evaluation Method}
+We will evaluate both TTS and singing generator separately and combined using mean opinion score (MOS) tests on the following datasets: 
+\begin{itemize}
+	\item NIT-SONG070-F001 dataset published by the Nagoya Institute of Technology (Nitech)
+	\item MIR1K dataset containing 1000 sentences, extracted from karaoke of chinese pop songs
+	\item Stanford's DAMP dataset that contains 10,000s of English songs recorded by the Sing! Android karaoke app. 
+\end{itemize}
+We will compare our final results to the following publicly accessible systems:
+\begin{itemize}
+	\item Sinsy-HMM \cite{oura2012pitch}
+	\item Sinsy-DNN \cite{nishimura2016singing}
+	\item The Original songs
+\end{itemize}
+
+\bibliography{project_description_ref}
+\bibliographystyle{plain}
+\end{document}

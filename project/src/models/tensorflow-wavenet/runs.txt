@@ -1,0 +1,60 @@
+	train/2018-08-12T19-57-48_damp
+CUDA_VISIBLE_DEVICES=5 python train.py --data_dir=../../data/damp/sliced_us_01/ --silence_threshold=0.3 --checkpoint_every=500
+	train/2018-08-12T23-35-16_vctk
+CUDA_VISIBLE_DEVICES=3 python train.py --data_dir=../../data/vctk/corpus --silence_threshold=0.1
+	train/2018-08-13T19-13-58_damp_no_silence
+CUDA_VISIBLE_DEVICES=3 python train.py --data_dir=../../data/damp/sliced_us_02/ --checkpoint_every=500
+	train/2018-08-14T20-07-56_damp_gc (gc_cardinality=629)
+CUDA_VISIBLE_DEVICES=1 python train.py --data_dir=../../data/damp/sliced_us_03/ --gc_channels=32 --checkpoint_every=500
+	train/2018-08-14T21-00-51
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir=../../data/damp/sliced_us_03/ --gc_channels=32 --checkpoint_every=500 --silence_threshold=0.1
+
+
+CUDA_VISIBLE_DEVICES=3 python generate.py logdir/train/2018-08-12T23-35-16/model.ckpt-99999 --wav_out_path=results/result_vctk_100000.wav --samples 80000
+CUDA_VISIBLE_DEVICES=4 python generate.py logdir/train/2018-08-12T19-57-48/model.ckpt-99999 --wav_out_path=results/result_damp_100000.wav --samples 160000 
+CUDA_VISIBLE_DEVICES=1 python generate.py --samples 160000 logdir/train/2018-08-14T20-07-56/model.ckpt-99999 --wav_out_path=results/result_damp_gc_100000.wav
+CUDA_VISIBLE_DEVICES=2 python generate.py --samples 160000 logdir/train/2018-08-14T20-07-56/model.ckpt-99999 --wav_out_path=results/result_damp_gc_100000_g596.wav --gc_cardinality=629 --gc_channels=32 --gc_id=596
+CUDA_VISIBLE_DEVICES=2 python generate.py --samples 160000 logdir/train/2018-08-14T20-07-56/model.ckpt-99999 --wav_out_path=results/result_damp_gc_100000_g007.wav --gc_cardinality=629 --gc_channels=32 --gc_id=007
+CUDA_VISIBLE_DEVICES=2 python generate.py --samples 160000 logdir/train/2018-08-14T21-00-51/model.ckpt-99999 --wav_out_path=results/result_damp_gc2_100000_g007.wav --gc_cardinality=629 --gc_channels=32 --gc_id=007
+CUDA_VISIBLE_DEVICES=1 python generate.py --samples 160000 logdir/train/2018-08-14T21-00-51/model.ckpt-99999 --wav_out_path=results/result_damp_gc2_100000_g002.wav --gc_cardinality=629 --gc_channels=32 --gc_id=002
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir=../../data/damp/01_us_f_vctk/ --gc_channels=32 --checkpoint_every=500
+Using default logdir: ./logdir/train/2018-08-18T15-18-09
+Detected --gc_cardinality=276
+CUDA_VISIBLE_DEVICES=2 python generate.py --samples 80000 logdir/train/2018-08-18T15-18-09/model.ckpt-30000 --wav_out_path=results/result_damp_01_gc.wav
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir=../../data/damp/01_us_f_vctk/ --gc_channels=32 --checkpoint_every=500             
+Using default logdir: ./logdir/train/2018-08-19T13-15-49
+Detected --gc_cardinality=276
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir=../../data/damp/01_us_f_vctk/ --gc_channels=32 --checkpoint_every=500 --silence_threshold=0
+./logdir/train/2018-08-19T16-47-50
+Detected --gc_cardinality=275
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir=../../data/damp/01_us_f_vctk/ --gc_channels=32 --checkpoint_every=500 --silence_threshold=0.2
+Using default logdir: ./logdir/train/2018-08-19T22-59-03
+Detected --gc_cardinality=275
+
+CUDA_VISIBLE_DEVICES=7 python train.py --data_dir=../../data/damp/05_us_a_vctk_good_half --gc_channels=32 --checkpoint_every=500 --silence_threshold=0.1
+Using default logdir: ./logdir/train/2018-08-20T12-10-44
+Detected --gc_cardinality=303
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir ../../data/sacral_choir/sacral_choir/ --silence_threshold=0 --checkpoint_every=777
+
+CUDA_VISIBLE_DEVICES=1 python train.py --data_dir ../../data/opera/opera_sliced_01 --silence_threshold=0.05 --checkpoint_every=500
+
+CUDA_VISIBLE_DEVICES=2 python train.py --data_dir ../../data/gregorian_chants/chants_sliced_01 --silence_threshold=0.1 --checkpoint_every=500
+Using default logdir: ./logdir/train/2018-08-24T12-29-49
+Using default logdir: ./logdir/train/2018-08-24T15-42-51
+Using default logdir: ./logdir/train/2018-08-25T00-22-09
+Using default logdir: ./logdir/train/2018-08-25T11-37-00
+
+CUDA_VISIBLE_DEVICES=1 python train.py --data_dir ../../data/gregorian_chants/chants_sliced_02 --silence_threshold=0 --checkpoint_every=500
+Using default logdir: ./logdir/train/2018-08-26T00-48-19
+
+CUDA_VISIBLE_DEVICES=7 python train.py --data_dir=../../data/damp/08_spanish_vctk/ --gc_channels=32 --checkpoint_every=500 --silence_threshold=0.07
+Using default logdir: ./logdir/train/2018-08-31T13-44-42
+Detected --gc_cardinality=888
+
+CUDA_VISIBLE_DEVICES=7 python generate.py --samples 160000 logdir/train/2018-08-31T13-44-42/model.ckpt-99999 --wav_out_path=results/result_spanish_01
+CUDA_VISIBLE_DEVICES=7 python generate.py --samples 160000 logdir/train/2018-08-31T13-44-42/model.ckpt-99999 --wav_out_path=results/result_spanish_gc_g007.wav --gc_cardinality=888 --gc_channels=32 --gc_id=007

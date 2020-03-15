@@ -1,0 +1,29 @@
+MIDI:
+-----
+1) https://www.reddit.com/r/datasets/comments/3akhxy/the_largest_midi_collection_on_the_internet/
+2) http://www.piano-midi.de/
+3) http://colinraffel.com/projects/lmd/
+
+
+Singing:
+--------
+1) https://c4dm.eecs.qmul.ac.uk/rdr/handle/123456789/39
+
+Instruments:
+------------
+1) https://magenta.tensorflow.org/datasets/nsynth
+
+Speech:
+-------
+1) https://catalog.ldc.upenn.edu/LDC93S1
+2) http://www.openslr.org/12/
+3) https://catalog.ldc.upenn.edu/LDC2002T43
+
+
+MIREX (Music Information Retrieval Evaluation eXchange) - Datasets and publications:
+-----
+http://www.music-ir.org/mirex/wiki/2018:Main_Page
+
+Million Song Datasets:
+---------------------
+https://labrosa.ee.columbia.edu/millionsong/

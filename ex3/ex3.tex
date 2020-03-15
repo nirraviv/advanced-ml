@@ -1,0 +1,451 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amssymb,amsfonts,amsmath,amsthm,amscd,dsfont,mathrsfs,bbold}
+\usepackage{blkarray}
+\usepackage{graphicx,float,psfrag,epsfig,color}
+\usepackage{microtype}
+\usepackage[pdftex,pagebackref=true,colorlinks]{hyperref}
+\usepackage{tikz}
+\usepackage{natbib}
+
+\usepackage{bm}
+\usetikzlibrary{positioning}
+\tikzset{main node/.style={circle,fill=white!20,draw,minimum size=1cm,inner sep=0pt},}
+\hypersetup{linkcolor=[rgb]{.7,0,0}}
+\hypersetup{citecolor=[rgb]{0,.7,0}}
+\hypersetup{urlcolor=[rgb]{.7,0,.7}}
+
+\newcommand{\remove}[1]{}
+\setlength{\topmargin}{0.2in} \setlength{\headheight}{0in}
+\setlength{\headsep}{0in} \setlength{\textheight}{8.7in}
+\setlength{\topsep}{0in} \setlength{\itemsep}{0in}
+\parskip=0.060in
+
+\textwidth=6.6in \oddsidemargin=0truecm \evensidemargin=0truecm
+
+
+
+\hbadness=10000 \vbadness=10000
+
+\setlength{\oddsidemargin}{.25in}
+\setlength{\evensidemargin}{.25in} \setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.4in} \setlength{\textheight}{8.5in}
+
+\newcommand{\details}[8]{
+	\renewcommand{\thepage}{#1-\arabic{page}}
+	\noindent
+	\begin{center}
+		\framebox{
+			\vbox{
+				\hbox to 5.78in { {\bf  Advanced Methods in Machine Learning}\hfill #2}
+				\vspace{4mm}
+				\hbox to 5.78in { {\Large \hfill Exercise #1  \hfill} }
+				\vspace{2mm}
+				\hbox to 5.78in { {{\it #3} \hfil {\it #4} \hfil {\it #5}} }
+				\vspace{2mm}
+				\hbox to 5.78in { {{\it #6} \hfil {\it #7} \hfil {\it #8}} }
+			}
+		}
+	\end{center}
+	\vspace*{4mm}
+}
+
+\newcommand{\lecture}[8]{\details{#1}{#2}{#3}{#4}{#5}{#6}{#7}{#8}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\graphicspath{{new_normalize/}}
+
+
+
+\begin{document}
+	\lecture{3}{6.5.2018}{Nir Raviv 200683548}{Roi Tabach 203022983}{Andrey Leshenko 322026527}{nirraviv@mail.tau.ac.il}{roi.tabach@gmail.com}{andrey.leshenko@gmail.com}
+	
+\part*{Q1}
+
+Consider a set of $n$ binary variables $X_1,\ldots,X_n$, and a graph with edges $E$ that is not necessarily a tree.
+The MRF will be defined via pairwise functions:
+\begin{equation}
+\theta_{ij}(x_i,x_j) =
+\begin{bmatrix}
+0 & 0 \\
+0 & s_{ij}
+\end{bmatrix}
+\end{equation}
+for some parameter $s_{ij} > 0$. The singleton functions will be:
+\begin{equation}
+\theta_{i}(x_i) =
+\begin{bmatrix}
+0 \\
+s_{i}
+\end{bmatrix}
+\end{equation}
+where $s_i \in \mathds{R}$ can be both positive or negative.
+We will show that the LP relaxation we learned in class also solves the MAP problem in this case.
+The proof follows in the next sections.
+
+\section*{a}
+
+We will show that the local marginal polytope relaxation (namely $max_{\mu\in \mathcal{M}_L} \mu \cdot \theta$) is equivalent to the following LP. The variables of the LP are a scalar $\tau_{ij}$ for each edge $ij \in E$, and a scalar $\tau_i$ for each variable.
+The objective is to maximize the function:
+\begin{equation}
+f(\tau) = \sum_i s_i \tau_i + \sum_{ij} s_{ij} \tau_{ij}
+\end{equation}
+And the constraints are:
+\begin{align*}
+\tau_{ij} &\geq 0 \quad \forall ij \in E \\
+\tau_{i } &\geq 0 \quad \forall i \\
+\tau_{ij} &\leq \tau_i \quad \forall ij \in E \\
+\tau_{ij} &\leq \tau_j \quad \forall ij \in E \\
+\tau_{ij} &\geq \tau_i + \tau_j - 1
+\end{align*}
+
+For the equivalent local marginal polytope problem we will define the following distribution-like function:
+
+\begin{align}
+\mu_{i} &=
+\begin{bmatrix}
+	\mu_{i}(0) \\ \mu_{i}(1)
+\end{bmatrix}
+=
+\begin{bmatrix}
+	1 - \tau_{i} \\
+	\tau_{i}
+\end{bmatrix}
+\\
+\mu_{ij} &= \begin{bmatrix}
+	\mu_{ij}(0,0) & \mu_{ij}(0,1) \\
+	\mu_{ij}(1,0) & \mu_{ij}(1,1)
+\end{bmatrix}
+=
+\begin{bmatrix}
+	(1 - \tau_{i} - \tau_{j} + \tau_{ij}) & (\tau_{j} - \tau_{ij}) \\
+	(\tau_{i} - \tau_{ij}) & (\tau_{ij})
+\end{bmatrix}
+\end{align}
+
+First, from the way we defined $\mu$ we can see that $f(\tau) = \mu \cdot \theta$ (the $\theta$ values are expanded into $s$ values, and many values of $\mu$ are multiplied by zeros and cancel out), which is the form of local marginal polytope relaxation.
+For the local marginal polytope, its function $\mu$ must satisfy:
+\begin{enumerate}
+\item All elements are non-negative: $\mu \geq 0$.
+\item All distributions sum to one: $\sum_{x_i} \mu_i(x_i)=1$ and $\sum_{x_i,x_j} \mu_{ij}(x_i,x_j)=1$.
+\item The pairwise distributions agree with the singleton ones:$\sum_{x_i} \mu_{ij}(x_i,x_j)=\mu_j(x_j)$
+\end{enumerate}
+
+The first two constraints ensured that all $\tau_i$ and $\tau_{ij}$ are non-negative,
+the next two constraints ensure that $\tau_{i} - \tau_{ij}$ and $\tau_{j} - \tau_{ij}$ are non-negative (moving all terms to the right), and the final constraint ensures that $1 - \tau_{i} - \tau_{j} + \tau_{ij}$ is non-negative (moving all terms to the left).
+We also need to show that $1 - \tau_i > 0$. If $\tau_i > 1$, then from constraints 4 and 5 we get $\tau_{ij} \geq \tau_i + \tau_j - 1 \geq \tau_i + \tau_{ij} - 1 > 1 + \tau_{ij} - 1$ and we get $\tau_{ij} > \tau_{ij}$ which can never happen. This proves that $\mu > 0$ at all values.
+
+We can see that the distributions sum to 1 by summing the values in the tables that define $\mu_i$ and $\mu_{ij}$ and seeing that they will always sum to 1.
+
+Finally, we need to show that the pairwise distributions agree with the singleton ones,
+but this is also easily seen from the tables:
+summing over the values of $x_i$ is equivalent to summing each column of $\mu_{ij}$ which is equal to $[1 - \tau_j, \tau_j] = \tau_j$. Similarly, summing over the values of $x_j$ (the rows of $\mu_{ij}$) gives us $\tau_i$. The distributions agree.
+
+This proves that this LP is equivalent to the local marginal polytope relaxation.
+
+\section*{b}
+
+We would like to show that the LP above has an optimum that has only values 0,1 for the $\tau$ variables.
+Given a solution $\tau$ that has fractional elements, we will define a new solution $z$ as:
+\begin{align*}
+	\lambda &= \min\left\{\min_{i:\tau_i>0} \tau_i , \min_{ij:\tau_{ij}>0} \tau_{ij} \right\} \\
+	z_{i } &= \tau_{i } - \lambda \mathcal{I}(0 < \tau_{i } < 1) \\
+	z_{ij} &= \tau_{ij} - \lambda \mathcal{I}(0 < \tau_{ij} < 1)
+\end{align*}
+We will also define the solution $z'$ where
+$\lambda = -\min\left\{\min_{i:\tau_i<1} (1-\tau_i) , \min_{ij:\tau_{ij}<1} (1-\tau_{ij}) \right\}$.
+%where $\lambda = \min_{i:\tau_i>0} \tau_i$.
+%We will also define the solution $z'$ where $\lambda = -\min_{i:\tau_i<1} (1-\tau_i)$.
+
+First we need to make sure that $z$ is still a valid solution to the LP problem.
+From the way we selected $\lambda$, all non-negativity constraints still hold.
+Regarding constraints 3 and 4, if $\tau_i$ was decreased,
+then either $\tau_{ij}$ is also fractional and will be decreased by the same amount,
+or it is and stays zero, preserving the constraint.
+In constraint 5, if both $\tau_i$ and $\tau_j$ are integral (4 possible cases)
+the constraint will hold for $z$; if one or both of $\tau_i,\tau_j$ is fractional,
+then the right hand-side of the equation we will get smaller by $\lambda$ or $2\lambda$ (while the left-hand side gets smaller by 0 or $\lambda$) and the constraint still holds.
+
+We will now show that $z$ has less fractional values than $\tau$.
+First notice that the only values that change are the ones which have fractional parts,
+the integral values of $\tau$ move to $z$ unchanged,
+ensuring that the number of fractional elements in $z$ is not larger than in $\tau$.
+Out of the fractional values that do change, one will be the minimum and set the value of $\lambda$.
+After $\lambda$ is subtracted from all fractional elements this element will become zero in $z$.
+This shows that the number of fractional elements in $z$ is strictly less than in $\tau$.
+The solution $z'$ can be analysed in a similar way.
+
+\section*{c}
+
+We will show that for one of the above $\lambda$ we have $f(\tau) \leq f(z)$.
+When creating $z$, we change all fractional elements by a small amount. Reorganizing the objective function we get:
+\begin{equation*}
+f(z) = f(\tau) - \lambda \cdot \left(
+	\sum_{i, 0<\tau_{i}<1} s_i + \sum_{ij, 0<\tau_{ij}<1} s_{ij}
+\right)
+\end{equation*}
+Out of the $\lambda$ we defined in the previous section,
+one is always positive while the other is always negative.
+This means that no matter what the sign of the term inside the brackets is, for one of the above $\lambda$ we have $f(\tau) \leq f(z)$.
+
+\section*{d}
+
+We have seen that the LP is equivalent to the local marginal polytope,
+and that some integral solution will be its maximum.
+From how we defined the function $\mu$, each integral solution corresponds to a binary assignment
+of the vector $x$.
+We can now conclude that there is always an integral solution to the LP which is the exact MAP.
+
+\section*{e}
+
+We now assume the pairwise marginal has four non-zero elements:
+\begin{equation}
+\theta_{ij}(x_i,x_j) =
+\begin{bmatrix}
+A & B \\
+C & D
+\end{bmatrix}
+\end{equation}
+where $A + D - B - C > 0$ and the singleton terms $\theta_i(x_i)$ can be arbitrary.
+We will show that this problem can be brought to the form with $s_{ij} > 0$ and $s_i$ as above, and therefore solved exactly.
+
+Look at the terms that relate to some edge of the graph:
+
+\begin{equation}
+\theta_{i}(x_i) =
+\begin{bmatrix}
+\theta_{i}(0) \\ \theta_{i}(1)
+\end{bmatrix},
+\theta_{ij}(x_i,x_j) =
+\begin{bmatrix}
+A & B \\
+C & D
+\end{bmatrix},
+\theta_{j}(x_j) =
+\begin{bmatrix}
+\theta_{j}(0) & \theta_{j}(1)
+\end{bmatrix}^T
+\label{fig:1e-alg-start}
+\end{equation}
+
+The possible transformations which not change the maximizer will be:
+\begin{enumerate}
+\item Add the same scalar to all elements of $\theta_{i}$, $\theta_{ij}$, or $\theta_{j}$.
+\item Add the same scalar to a row of $\theta_{ij}$, and subtract it from the same row of $\theta_{i}$.
+\item Add the same scalar to a column of $\theta_{ij}$, and subtract it from the same column of $\theta_{j}$.
+\end{enumerate}
+The first transformation is legal because it increases or decreases the function $f(x; \theta)$ by a constant value regardless of $x$, therefore it doesn't influence the maximizer.
+The second and third transformations don't change $f(x; \theta)$,
+but they shift values from the pairwise terms to the singletons (and vice versa).
+If $x_i = 1$, then in the sum of $f(x; \theta)$ we will have $\theta_{i}(1)$ and $\theta_{ij}(1, x_j)$ for some value of $x_j$ which corresponds to the bottom row of $\theta_{ij}$. We can increase $\theta_{i}(1)$ and decrease the relevant part of $\theta_{ij}$ without changing $f(x; \theta)$.
+
+Armed with these three transformations, we can now devise an algorithm that changes the marginals into the wanted form. For \textbf{each} edge, our algorithm carries out the following steps:
+
+Beginning from Eq. \ref{fig:1e-alg-start}, subtract $B$ from the second column of $\theta_{ij}$:
+\begin{equation}
+\begin{bmatrix}
+\theta_{i}(0) \\ \theta_{i}(1)
+\end{bmatrix},
+\begin{bmatrix}
+A & 0 \\
+C & D - B
+\end{bmatrix},
+\begin{bmatrix}
+\theta_{j}(0) & \theta_{j}(1) + B
+\end{bmatrix}^T
+\end{equation}
+	Subtract $C$ from the second row of $\theta_{ij}$:
+\begin{equation}
+\begin{bmatrix}
+\theta_{i}(0) \\ \theta_{i}(1) + C
+\end{bmatrix},
+\begin{bmatrix}
+A & 0 \\
+0 & D - B - C
+\end{bmatrix},
+\begin{bmatrix}
+\theta_{j}(0) & \theta_{j}(1) + B
+\end{bmatrix}^T
+\end{equation}
+	Add $A$ to all elements of $\theta_{ij}$:
+\begin{equation}
+\begin{bmatrix}
+\theta_{i}(0) \\ \theta_{i}(1) + C
+\end{bmatrix},
+\begin{bmatrix}
+2A & A \\
+A & A + D - B - C
+\end{bmatrix},
+\begin{bmatrix}
+\theta_{j}(0) & \theta_{j}(1) + B
+\end{bmatrix}^T
+\end{equation}
+	Subtract $A$ from the first column and first row of $\theta_{ij}$:
+\begin{equation}
+\begin{bmatrix}
+\theta_{i}(0) + A \\ \theta_{i}(1) + C
+\end{bmatrix},
+\begin{bmatrix}
+0 & 0 \\
+0 & A + D - B - C
+\end{bmatrix},
+\begin{bmatrix}
+\theta_{j}(0) + A & \theta_{j}(1) + B
+\end{bmatrix}^T
+\end{equation}
+	Subtract $\theta_{i}(0) + A$ from all values of $\theta_{i}$ and subtract  $\theta_{j}(0) + A$ from all values of $\theta_{j}$:
+\begin{equation}
+\begin{bmatrix}
+0 \\ \theta_{i}(1) + C - \theta_{i}(0) - A
+\end{bmatrix},
+\begin{bmatrix}
+0 & 0 \\
+0 & A + D - B - C
+\end{bmatrix},
+\begin{bmatrix}
+0 & \theta_{j}(1) + B - \theta_{j}(0) - A
+\end{bmatrix}^T
+\end{equation}
+
+Given that $s_{ij} = A + D - B - C > 0$, we successfully simplified the problem without changing its minimizer (after doing these steps for each edge in the graph).
+QED.
+
+\part*{Q2}
+Let us recall that the importance sampling estimate of $\mathds{E}_p[f(X)]$ is the random variable:
+\begin{equation}\label{eq:q2_IS}
+	Z=\frac{1}{T}\sum_{i=1}^{T}\frac{p(X^{(i)})}{q(X^{(i)})}f(X^{(i)})
+\end{equation}
+\section*{a}
+$q^n$ is a distribution sampling $n$ IID samples of $X{(i)}$ from $q(x)$. We need to show that 
+\begin{equation}\label{eq:q2_proof}
+	\mathds{E}_{q^n}[Z] = \mathds{E}_p[f(X)]
+\end{equation}
+Because $X^{(i)}$ are IID then $Z^{(i)}=\frac{p(X^{(i)})}{q(X^{(i)})}f(X^{(i)})$ are IID as well, so it is sufficient to check that $\mathds{E}\left[Z^{(1)}\right] = \mathds{E}_p[f(X)]$. We will prove that in the continuous case (but it is similar in the discrete case).
+\begin{equation*}
+	\mathds{E}_{q^n}[Z^{(1)}] = \int \frac{p(y)}{q(y)}q(y)dy = \int f(y)q(y)dy=\mathds{E}_p[f(X)]
+\end{equation*}
+QED
+\section*{b}
+We need to show that the variance is minimized by the following distribution:
+\begin{equation}\label{eq:q2_given}
+	q^*(x)=\frac{|f(x)|p(x)}{\mathds{E}_p[|f(X)|]}\propto |f(x)|p(x)
+\end{equation}
+For this section we will use Jensen's inequality. if $X$ is a random variable and $\phi$ is convex function, then
+\begin{equation}\label{eq:q2_jensen}
+	\phi\left(\mathds{E}[X]\right) \le \mathds{E}\left[\phi(X)\right]
+\end{equation}
+We will prove again for the continuous case. \\
+First, we will calculate the variance of $Z$ and since $Z^{(i)}$ are IID, $Var(Z)=\frac{Var(Z^{(1)})}{T}$
+\begin{equation}\label{eq:q2_Z2}
+	\mathds{E}[(Z^{(i)})^2]=\int f^2(y)\frac{p^2(y)}{q^2(y)}q(y)dy=	\int f^2(y)\frac{p(y)}{q(y)}p(y) = \mathds{E}_p\left[f^2(X)\frac{p(X)}{q(X)}\right]
+\end{equation}
+Thus,
+\begin{equation*}
+	\sigma_{i,q}^2=Var\left(Z^{(i)}\right)=\mathds{E}\left[(Z^{(i)})^2\right]-\left(\mathds{E}[(Z^{(i)})]\right)^2 = \mathds{E}_p\left[f^2(X)\frac{p(X)}{q(X)}\right]-\left(\mathds{E}_p[f(X)]\right)^2
+\end{equation*}
+Secondly, we will use the hint to find the lower bound for the first term (in the last equality)
+\begin{align*}
+\left(\mathds{E}_p[|f(X)|]\right)^2 \overset{\eqref{eq:q2_proof}}{=} \left(\mathds{E}_{q}|f(X)|\frac{p(X)}{q(X)}\right)^2 \overset{\eqref{eq:q2_jensen}}{\le} \mathds{E}_q\left[f^2(X)\frac{p^2(X)}{q^2(X)}\right] \overset{\eqref{eq:q2_Z2}}{=} \mathds{E}_p\left[f^2(X) \frac{p(X)}{q(X)}\right]
+\end{align*}
+Finally, we will show that the equality takes place for $q^*(x)$
+\begin{equation*}
+	\mathds{E}_p\left[f^2(X)\frac{p(X)}{q^*(X)}\right]=\int f^2(y)\frac{p^2(y)}{q^*(y)}dy \overset{\eqref{eq:q2_given}}{=} \int |f(y)|\mathds{E}_p[|f(X)|]p(y)dy=(\mathds{E}_p[|f(X)|])^2
+\end{equation*}
+Thus, $\sigma_{i,q^*}^2 \le \sigma_{i,q}^2$ \\
+QED
+\part*{Q3}
+
+\section*{a}
+We want to solve the following maximization problem:
+$$
+max_p \space -\sum_xp(x)log(p(x))
+$$
+where
+$$
+\forall i \in [1\cdots d] \space \sum_x p(x)f_i(x)=a_i
+$$
+and 
+$$
+\sum_x p(x) = 1
+$$
+we should have added $\forall x\space  p(x) \ge 0 $  , but instead we'll notice that the $p$ we're about to find is already non-negative, as an exponent, even without adding this constraint.
+
+So the lagrangian function is this:
+$$
+\boldsymbol{L}(p, \vec{\lambda},\nu) = -\sum_x p(x)log(p(x)) + \sum_i \lambda_i\left(\sum_x p(x)f_i(x) \space - a_i\right) + \nu \cdot \left(\sum_xp(x)-1\right)
+$$
+We derive w.r.t. $p$, to get 
+$$
+0 = \frac{\delta \boldsymbol{L}}{\delta p} = -\sum_x (1+log(p(x)) + \sum_i \lambda_i \left(\sum_x f_i(x)\right) + \nu\cdot \sum_x 1
+$$
+$$
+\sum_x log(p(x)) = \sum_x \left(\nu-1 + \sum_i \lambda_i f_i(x) \right) 
+$$
+
+and so 
+$$
+p(x) = e^{\nu - 1} \cdot e^{\sum_i \lambda_i f_i(x)}
+$$
+
+As requested.
+
+
+\section*{b}We now have the marginals given for $ij \in E$ for some graph.
+We want to create the $\{f_i, a_i\}_{i=1\cdots d}$ so that the probability $p$ that has $E_p\left(f_i(x)\right)=a_i$ that has the maximal entropy is the Pairwise MRF with those marginals.
+Recall that we can write the pairwise MRF as:
+\begin{equation*}
+p_{p-MRF}=e^{\sum_{ij\in E}log\left(\mu_{ij}(x_i, x_j)\right)}
+\end{equation*}
+We denote $\theta_{ij} := log(\mu_{ij})$.
+\begin{equation*}
+= e^{\sum_{ij}\left(\theta_{ij}\left(x_i,x_j\right)\cdot \mathds{1}_{ij\in E}\right)}
+\end{equation*}
+%The weird part is here: seems from globerson's hint that he thinks lambda_i and f_i should be opposite of what they are now- but this makes no sense...
+Which can be written similar to the first part of the question, with $\lambda_{ij} = \mathds{1}_{ij\in E}$ and $f_{ij} = \theta_{ij}\left(x_i,x_j\right)$. Note that in the first part we had $i = 1\cdots d$ and $d$ wasn't bound, here we have $ij$ as the notation but we can still use the results from part 1.
+
+So we need to see which $a_i$s to choose. 
+\begin{equation*}
+\mathds{E}_{p_{p-MRF}}(f_{ij}(x)) = \sum_x(p_{p-MRF}(x)f_{ij}(x))=\sum_{x_{ij}}\left(\sum_{x_{[n]\setminus \{i,j\}}}p_{p-MRF}(x)f_{ij}(x)\right)
+\end{equation*}
+\begin{equation*}
+=\sum_{x_{ij}}f_{ij}(x)\left(\sum_{x_{[n]\setminus \{i,j\}}}p_{p-MRF}(x)\right)
+\end{equation*}
+now we will start calling $p_{p-MRF}$ simply $p$ for convenience.
+Notice that for every distribution, the bracketed part is simply the marginal distribution! So we will call it $p_{ij}$ to get:
+\begin{equation*}
+=\sum_{x_{ij}}f_{ij}(x)\left(p_{ij}(x)\right)=\sum_{x_{ij}}f_{ij}(x)\left(\mu_{ij}(x_i,x_j)\right)
+\end{equation*}
+
+\begin{equation*}
+=\sum_{x_{ij}}log(\mu_{ij}(x_i,x_j))\left(\mu_{ij}(x_i,x_j)\right) = -H\left[\mu_{ij}\right]  := a_{ij}
+\end{equation*}
+
+And this concludes the question.
+
+
+\part*{Q4}
+We need to show that for a pairwise MRF on graph, $G$, the log partition function, $logZ(\theta)$ is a convex function of $\theta$. To prove that sufficient to show that $logZ(\theta)$ is PSD. First, we will show that the log partition function is a covariance matrix and then we will prove the covariance matrix is PSD. \\
+We have seen in class that the log partition function can be represented as follows,
+\begin{equation*}
+	f(\theta)=logZ(\theta) = log\left(\sum_{x_1,...,x_n}e^{\sum_{ij}\theta_{ij}(x_i,x_j)+\sum_i\theta_{i}(x_i)}\right) = log\left(\sum_{\boldsymbol{x}}e^{\boldsymbol{\mu(x)}^T\boldsymbol{\theta}}\right)
+\end{equation*}
+Where $\boldsymbol{\mu}$ comes from some distribution. Thus it should hold that all elements are non-negative, all distributions sum to one and pairwise distributions agree with the singleton ones. \\
+We now want to show that the Hessian is a PSD matrix.\\
+\begin{align*}
+	\begin{split}
+		\frac{\partial f(\theta)}{\partial \theta_{i}} = \frac{\partial}{\partial \theta_i}log\left(\sum_{\boldsymbol{x}}exp(\mu^T\theta)\right) = \frac{1}{\sum_{\boldsymbol{x}}exp(\mu^T\theta)}\sum_{\boldsymbol{x}}\frac{\partial}{\partial \theta_{i}}exp(\mu^T\theta) \\ = \frac{1}{\sum_{\boldsymbol{x}}exp(\mu^T\theta)}\sum_{\boldsymbol{x}}\mu_{i}(\boldsymbol{x})exp(\mu^T\theta) =\sum_{\boldsymbol{x}} \frac{exp(\mu^T\theta)}{\sum_{\boldsymbol{\tilde{x}}}exp(\mu^T\theta)}\mu_{i}(\boldsymbol{x})\\
+		= \sum_{\boldsymbol{x}}p(\boldsymbol{x})\mu_{i}(\boldsymbol{x}) = \mathds{E}[\mu_{i}(\boldsymbol{x})]
+	\end{split}\\
+	\begin{split}
+		\frac{\partial ^2f(\theta)}{\partial \theta_j \partial \theta_i} = \frac{\partial}{\partial \theta_{j}} \frac{\sum_{\boldsymbol{x}}\mu_{i}(\boldsymbol{x})exp(\mu^T\theta)}{\sum_{\boldsymbol{\tilde{x}}}exp(\mu^T\theta)} = \frac{\sum_{\boldsymbol{x}}\mu_{i}(\boldsymbol{x})\mu_{j}(\boldsymbol{x})e^{\mu^T\theta}\sum_{\boldsymbol{\tilde{x}}}e^{\mu^T\theta}}{(\sum_{\boldsymbol{\tilde{x}}}e^{\mu^T\theta})^2} - \\  \frac{\sum_{\boldsymbol{x}}\mu_{i}(\boldsymbol{x})e^{\mu^T\theta}\sum_{\boldsymbol{\tilde{x}}}\mu_{j}(\boldsymbol{\tilde{x}})e^{\mu^T\theta}}{(\sum_{\boldsymbol{\tilde{x}}}e^{\mu^T\theta})^2}  = \sum_{\boldsymbol{x}}\frac{\mu_{i}(\boldsymbol{x})\mu_{j}(\boldsymbol{x})e^{\mu^T\theta}}{\sum_{\boldsymbol{\tilde{x}}}e^{\mu^T\theta}} - \\
+		\sum_{\boldsymbol{x}} \frac{exp(\mu^T\theta)}{\sum_{\boldsymbol{\tilde{x}}}exp(\mu^T\theta)}\mu_{i}(\boldsymbol{x}) \sum_{\boldsymbol{x}} \frac{exp(\mu^T\theta)}{\sum_{\boldsymbol{\tilde{x}}}exp(\mu^T\theta)}\mu_{j}(\boldsymbol{x}) \\ = \sum_{\boldsymbol{x}}p(\boldsymbol{x})\mu_{i}(\boldsymbol{x})\mu_{j}(\boldsymbol{x}) - \sum_{\boldsymbol{x}}p(\boldsymbol{x})\mu_{i}(\boldsymbol{x}) \sum_{\boldsymbol{x}}p(\boldsymbol{x})\mu_{j}(\boldsymbol{x}) \\ = \mathds{E}[\mu_{i}(\boldsymbol{x})\mu_{j}(\boldsymbol{x})] - \mathds{E}[\mu_{i}(\boldsymbol{x})]\mathds{E}[\mu_{j}(\boldsymbol{x})] = cov(\mu_{i}(\boldsymbol{x}), \mu_{j}(\boldsymbol{x}))
+	\end{split}
+\end{align*}
+
+Thus, the Hessian matrix is $cov(\boldsymbol{\mu}(\boldsymbol{x}))$ \\
+Finally, we need to prove that the covariance matrix is PSD for any random vector $x$ with expectation $\bar{x}$.
+\begin{align*}
+	v^TC_xv = v^T\mathds{E}[(x-\bar{x})(x-\bar{x})^T]v =\mathds{E}[v^T(x-\bar{x})(x-\bar{x})^Tv] \overset{u=v^T(x-\bar{x})}{=} \mathds{E}[uu^T] = \sigma_u^2 \overset{(*)}{\ge} 0
+\end{align*}
+(*) variance of a zero-mean random variable is non-negative.\\
+QED
+\end{document}
